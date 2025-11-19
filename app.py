@@ -1,107 +1,239 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from models import db, User, Link, LinkCheck
+from config import Config
+from link_monitor import check_link, check_all_links
+import schedule
+import threading
+import time
 from datetime import datetime, timedelta
-from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+import os
 
-db = SQLAlchemy()
+# Load environment variables from .env file
+load_dotenv()
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255))
-    plan = db.Column(db.String(20), default='starter')  # starter, pro, business
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    active = db.Column(db.Boolean, default=True)
-    
-    # Trial & Subscription fields
-    trial_ends_at = db.Column(db.DateTime)  # Set to created_at + 14 days
-    subscription_status = db.Column(db.String(20), default='trial')  # trial, active, canceled, expired
-    stripe_customer_id = db.Column(db.String(100))
-    stripe_subscription_id = db.Column(db.String(100))
-    
-    # Relationships
-    links = db.relationship('Link', backref='user', lazy=True, cascade='all, delete-orphan')
-    
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-    
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-    
-    @property
-    def is_trial_active(self):
-        """Check if user's trial period is still active"""
-        if not self.trial_ends_at:
-            return False
-        return datetime.utcnow() < self.trial_ends_at
-    
-    @property
-    def days_left_in_trial(self):
-        """Calculate days remaining in trial"""
-        if not self.trial_ends_at:
-            return 0
-        delta = self.trial_ends_at - datetime.utcnow()
-        return max(0, delta.days)
-    
-    @property
-    def can_add_links(self):
-        """Check if user can add more links based on trial/subscription status and plan limits"""
-        # Check if trial active or paid
-        if self.subscription_status == 'trial' and not self.is_trial_active:
-            return False
-        if self.subscription_status in ['canceled', 'expired']:
-            return False
-        
-        # Check link limits based on plan
-        plan_limits = {'starter': 3, 'pro': 10, 'business': 50}
-        current_count = len(self.links)
-        max_links = plan_limits.get(self.plan, 3)
-        
-        return current_count < max_links
-    
-    @property
-    def link_limit(self):
-        """Get the maximum number of links for user's plan"""
-        plan_limits = {'starter': 3, 'pro': 10, 'business': 50}
-        return plan_limits.get(self.plan, 3)
-    
-    @property
-    def can_use_service(self):
-        """Check if user can use the service (trial active or paid subscription)"""
-        if self.subscription_status == 'trial':
-            return self.is_trial_active
-        return self.subscription_status == 'active'
-    
-    def __repr__(self):
-        return f'<User {self.email}>'
+app = Flask(__name__)
+app.config.from_object(Config)
+
+# Initialize extensions
+db.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
-class Link(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    url = db.Column(db.String(500), nullable=False)
-    name = db.Column(db.String(100))  # Friendly name for the link
-    status = db.Column(db.String(20), default='unknown')  # up, down, unknown
-    last_checked = db.Column(db.DateTime)
-    last_status_change = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    active = db.Column(db.Boolean, default=True)
-    
-    # Relationships
-    checks = db.relationship('LinkCheck', backref='link', lazy=True, cascade='all, delete-orphan')
-    
-    def __repr__(self):
-        return f'<Link {self.url}>'
+# Routes
+@app.route('/')
+def index():
+    return render_template('dashboard_app.html')
 
 
-class LinkCheck(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    link_id = db.Column(db.Integer, db.ForeignKey('link.id'), nullable=False)
-    checked_at = db.Column(db.DateTime, default=datetime.utcnow)
-    status_code = db.Column(db.Integer)
-    response_time = db.Column(db.Float)  # in seconds
-    is_up = db.Column(db.Boolean)
-    error_message = db.Column(db.Text)
+@app.route('/api/register', methods=['POST'])
+def register():
+    """Register a new user"""
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
     
-    def __repr__(self):
-        return f'<LinkCheck {self.link_id} at {self.checked_at}>'
+    if not email or not password:
+        return jsonify({'error': 'Email and password required'}), 400
+    
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already registered'}), 400
+    
+    user = User(email=email, plan='starter')
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    
+    login_user(user)
+    
+    return jsonify({
+        'message': 'Registration successful',
+        'user': {'id': user.id, 'email': user.email, 'plan': user.plan}
+    }), 201
+
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    """Login existing user"""
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    user = User.query.filter_by(email=email).first()
+    
+    if user and user.check_password(password):
+        login_user(user)
+        return jsonify({
+            'message': 'Login successful',
+            'user': {'id': user.id, 'email': user.email, 'plan': user.plan}
+        })
+    
+    return jsonify({'error': 'Invalid credentials'}), 401
+
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def logout():
+    """Logout user"""
+    logout_user()
+    return jsonify({'message': 'Logged out successfully'})
+
+
+@app.route('/api/links', methods=['GET'])
+@login_required
+def get_links():
+    """Get all links for current user"""
+    links = Link.query.filter_by(user_id=current_user.id, active=True).all()
+    
+    return jsonify({
+        'links': [{
+            'id': link.id,
+            'url': link.url,
+            'name': link.name,
+            'status': link.status,
+            'last_checked': link.last_checked.isoformat() if link.last_checked else None,
+            'created_at': link.created_at.isoformat()
+        } for link in links]
+    })
+
+
+@app.route('/api/links', methods=['POST'])
+@login_required
+def add_link():
+    """Add a new link to monitor"""
+    data = request.json
+    url = data.get('url')
+    name = data.get('name', '')
+    
+    if not url:
+        return jsonify({'error': 'URL required'}), 400
+    
+    # Check plan limits
+    current_links_count = Link.query.filter_by(user_id=current_user.id, active=True).count()
+    plan_limit = app.config['PLAN_LIMITS'].get(current_user.plan, 3)
+    
+    if current_links_count >= plan_limit:
+        return jsonify({'error': f'Link limit reached for {current_user.plan} plan'}), 403
+    
+    # Add http:// if not present
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
+    
+    link = Link(user_id=current_user.id, url=url, name=name)
+    db.session.add(link)
+    db.session.commit()
+    
+    # Perform initial check
+    check_link(link.id)
+    
+    return jsonify({
+        'message': 'Link added successfully',
+        'link': {
+            'id': link.id,
+            'url': link.url,
+            'name': link.name,
+            'status': link.status
+        }
+    }), 201
+
+
+@app.route('/api/links/<int:link_id>', methods=['DELETE'])
+@login_required
+def delete_link(link_id):
+    """Delete a link"""
+    link = Link.query.get_or_404(link_id)
+    
+    if link.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    link.active = False
+    db.session.commit()
+    
+    return jsonify({'message': 'Link deleted successfully'})
+
+
+@app.route('/api/links/<int:link_id>/check', methods=['POST'])
+@login_required
+def manual_check(link_id):
+    """Manually trigger a link check"""
+    link = Link.query.get_or_404(link_id)
+    
+    if link.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    result = check_link(link_id)
+    
+    return jsonify({
+        'message': 'Check completed',
+        'result': result
+    })
+
+
+@app.route('/api/links/<int:link_id>/history', methods=['GET'])
+@login_required
+def get_link_history(link_id):
+    """Get check history for a link"""
+    link = Link.query.get_or_404(link_id)
+    
+    if link.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    # Get last 100 checks
+    checks = LinkCheck.query.filter_by(link_id=link_id).order_by(LinkCheck.checked_at.desc()).limit(100).all()
+    
+    return jsonify({
+        'history': [{
+            'checked_at': check.checked_at.isoformat(),
+            'is_up': check.is_up,
+            'status_code': check.status_code,
+            'response_time': check.response_time,
+            'error_message': check.error_message
+        } for check in checks]
+    })
+
+@app.route('/api/check-all', methods=['POST'])
+def trigger_check_all():
+    """Endpoint to trigger all checks (for external cron)"""
+    auth_token = request.headers.get('Authorization')
+    
+    # Simple token authentication
+    expected_token = f"Bearer {app.config['SECRET_KEY']}"
+    if auth_token != expected_token:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        check_all_links()
+        return jsonify({'message': 'All links checked successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# Scheduler
+def run_scheduler():
+    """Run the monitoring scheduler in a background thread"""
+    schedule.every(10).minutes.do(check_all_links)
+    
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+
+
+# Initialize database and start scheduler
+with app.app_context():
+    db.create_all()
+    
+    # Start scheduler in background thread
+    scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
+    scheduler_thread.start()
+    print("Scheduler started - checking links every 10 minutes")
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
