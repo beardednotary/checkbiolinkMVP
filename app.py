@@ -30,7 +30,7 @@ def load_user(user_id):
 # Routes
 @app.route('/')
 def index():
-    return render_template('dashboard.html')
+    return render_template('dashboard_app.html')
 
 
 @app.route('/api/register', methods=['POST'])
