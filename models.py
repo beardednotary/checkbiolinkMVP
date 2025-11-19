@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     active = db.Column(db.Boolean, default=True)
     
     # Trial & Subscription fields
-    trial_ends_at = db.Column(db.DateTime)  # Set to created_at + 14 days
+    trial_ends_at = db.Column(db.DateTime)
     subscription_status = db.Column(db.String(20), default='trial')  # trial, active, canceled, expired
     stripe_customer_id = db.Column(db.String(100))
     stripe_subscription_id = db.Column(db.String(100))
