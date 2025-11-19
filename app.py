@@ -198,6 +198,22 @@ def get_link_history(link_id):
         } for check in checks]
     })
 
+@app.route('/api/check-all', methods=['POST'])
+def trigger_check_all():
+    """Endpoint to trigger all checks (for external cron)"""
+    auth_token = request.headers.get('Authorization')
+    
+    # Simple token authentication
+    expected_token = f"Bearer {app.config['SECRET_KEY']}"
+    if auth_token != expected_token:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        check_all_links()
+        return jsonify({'message': 'All links checked successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 # Scheduler
 def run_scheduler():
