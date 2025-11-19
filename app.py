@@ -31,12 +31,11 @@ def load_user(user_id):
 @app.route('/')
 def index():
     return render_template('dashboard.html')
-    return render_template('dashboard_app.html')
 
 
 @app.route('/api/register', methods=['POST'])
 def register():
-    """Register a new user"""
+    """Register a new user with 14-day trial"""
     data = request.json
     email = data.get('email')
     password = data.get('password')
@@ -71,6 +70,40 @@ def register():
         }
     }), 201
 
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    """Login existing user"""
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+
+    if user and user.check_password(password):
+        login_user(user)
+        return jsonify({
+            'message': 'Login successful',
+            'user': {
+                'id': user.id, 
+                'email': user.email, 
+                'plan': user.plan,
+                'subscription_status': user.subscription_status,
+                'days_left': user.days_left_in_trial if user.subscription_status == 'trial' else None
+            }
+        })
+
+    return jsonify({'error': 'Invalid credentials'}), 401
+
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def logout():
+    """Logout user"""
+    logout_user()
+    return jsonify({'message': 'Logged out successfully'})
+
+
 @app.route('/api/user/status')
 @login_required
 def user_status():
@@ -88,32 +121,6 @@ def user_status():
         'can_add_links': current_user.can_add_links,
         'stripe_customer_id': current_user.stripe_customer_id
     })
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    """Login existing user"""
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
-
-    user = User.query.filter_by(email=email).first()
-
-    if user and user.check_password(password):
-        login_user(user)
-        return jsonify({
-            'message': 'Login successful',
-            'user': {'id': user.id, 'email': user.email, 'plan': user.plan}
-        })
-
-    return jsonify({'error': 'Invalid credentials'}), 401
-
-
-@app.route('/api/logout', methods=['POST'])
-@login_required
-def logout():
-    """Logout user"""
-    logout_user()
-    return jsonify({'message': 'Logged out successfully'})
 
 
 @app.route('/api/links', methods=['GET'])
@@ -140,6 +147,7 @@ def get_links():
             'created_at': link.created_at.isoformat()
         } for link in links]
     })
+
 
 @app.route('/api/links', methods=['POST'])
 @login_required
@@ -245,6 +253,7 @@ def get_link_history(link_id):
         } for check in checks]
     })
 
+
 @app.route('/api/check-all', methods=['POST'])
 def trigger_check_all():
     """Endpoint to trigger all checks (for external cron)"""
@@ -275,6 +284,37 @@ def run_scheduler():
 # Initialize database and start scheduler
 with app.app_context():
     db.create_all()
+    
+    # Try to add new columns if they don't exist (migration)
+    from sqlalchemy import text, inspect
+    try:
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('user')]
+        
+        with db.engine.connect() as conn:
+            if 'trial_ends_at' not in columns:
+                conn.execute(text('ALTER TABLE "user" ADD COLUMN trial_ends_at TIMESTAMP'))
+                conn.commit()
+                print("✅ Added trial_ends_at column")
+            
+            if 'subscription_status' not in columns:
+                conn.execute(text("ALTER TABLE \"user\" ADD COLUMN subscription_status VARCHAR(20) DEFAULT 'trial'"))
+                conn.commit()
+                print("✅ Added subscription_status column")
+            
+            if 'stripe_customer_id' not in columns:
+                conn.execute(text('ALTER TABLE "user" ADD COLUMN stripe_customer_id VARCHAR(100)'))
+                conn.commit()
+                print("✅ Added stripe_customer_id column")
+            
+            if 'stripe_subscription_id' not in columns:
+                conn.execute(text('ALTER TABLE "user" ADD COLUMN stripe_subscription_id VARCHAR(100)'))
+                conn.commit()
+                print("✅ Added stripe_subscription_id column")
+                
+        print("✅ Database migration completed successfully")
+    except Exception as e:
+        print(f"⚠️ Migration note: {e}")
 
     # Start scheduler in background thread
     scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
