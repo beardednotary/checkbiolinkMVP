@@ -3,779 +3,919 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheckBioLink Dashboard</title>
+    <title>CheckBioLink</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --dark-bg: #0a0a1a;
-            --darker-bg: #050510;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text-light: #ffffff;
-            --text-gray: #b8b8d1;
-            --accent-purple: #764ba2;
-            --accent-pink: #f5576c;
-            --accent-green: #4caf50;
-            --border-glow: rgba(118, 75, 162, 0.3);
+            --blue: #2563eb;
+            --blue-light: #eff6ff;
+            --blue-dark: #1d4ed8;
+            --green: #16a34a;
+            --green-bg: #f0fdf4;
+            --red: #dc2626;
+            --red-bg: #fef2f2;
+            --yellow: #ca8a04;
+            --yellow-bg: #fefce8;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+            --radius: 8px;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-light);
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
         }
 
-        /* Auth Page Styles */
-        .auth-container {
+        /* --- Auth page --- */
+        .auth-page {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            background: var(--white);
         }
-
-        .auth-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            padding: 3rem;
-            max-width: 450px;
+        .auth-card {
             width: 100%;
-            backdrop-filter: blur(10px);
+            max-width: 400px;
         }
-
-        .auth-logo {
-            text-align: center;
+        .auth-card h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: .25rem;
+        }
+        .auth-card .subtitle {
+            color: var(--gray-500);
+            font-size: .95rem;
             margin-bottom: 2rem;
         }
-
-        .auth-logo h1 {
-            font-size: 2rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .auth-tabs {
+        .tabs {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 1.5rem;
         }
-
-        .auth-tab {
+        .tab {
             flex: 1;
-            padding: 1rem;
-            background: transparent;
-            border: 1px solid var(--border-glow);
-            border-radius: 10px;
-            color: var(--text-gray);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .auth-tab.active {
-            background: var(--primary-gradient);
-            color: white;
-            border-color: transparent;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-gray);
-            font-size: 0.9rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 1rem;
-            background: var(--darker-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 10px;
-            color: var(--text-light);
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent-purple);
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary-gradient);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-        }
-
-        .error-message {
-            background: rgba(245, 87, 108, 0.1);
-            border: 1px solid var(--accent-pink);
-            color: var(--accent-pink);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        /* Dashboard Styles */
-        .dashboard {
-            display: none;
-        }
-
-        .dashboard.active {
-            display: block;
-        }
-
-        .dashboard-header {
-            background: var(--darker-bg);
-            border-bottom: 1px solid var(--border-glow);
-            padding: 1.5rem 0;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .user-email {
-            color: var(--text-gray);
-            font-size: 0.9rem;
-        }
-
-        .btn-secondary {
-            padding: 0.6rem 1.5rem;
-            background: transparent;
-            border: 1px solid var(--border-glow);
-            border-radius: 8px;
-            color: var(--text-light);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent-purple);
-            background: rgba(118, 75, 162, 0.1);
-        }
-
-        .dashboard-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
-
-        .dashboard-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .dashboard-title h2 {
-            font-size: 2rem;
-        }
-
-        .btn-add {
-            padding: 1rem 2rem;
-            background: var(--primary-gradient);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .btn-add:hover {
-            transform: translateY(-2px);
-        }
-
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .link-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 15px;
-            padding: 1.5rem;
-            transition: all 0.3s;
-        }
-
-        .link-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-purple);
-            box-shadow: 0 10px 30px rgba(118, 75, 162, 0.3);
-        }
-
-        .link-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.up {
-            background: var(--accent-green);
-        }
-
-        .status-dot.down {
-            background: var(--accent-pink);
-        }
-
-        .status-dot.unknown {
-            background: var(--text-gray);
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .link-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .link-url {
-            color: var(--text-gray);
-            font-size: 0.9rem;
-            word-break: break-all;
-            margin-bottom: 1rem;
-        }
-
-        .link-meta {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-gray);
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
-        }
-
-        .link-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: 1px solid var(--border-glow);
-            border-radius: 8px;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-
-        .btn-small:hover {
-            border-color: var(--accent-purple);
-            background: rgba(118, 75, 162, 0.1);
-        }
-
-        .btn-danger {
-            border-color: rgba(245, 87, 108, 0.3);
-            color: var(--accent-pink);
-        }
-
-        .btn-danger:hover {
-            border-color: var(--accent-pink);
-            background: rgba(245, 87, 108, 0.1);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-header h3 {
-            font-size: 1.5rem;
-        }
-
-        .modal-close {
+            padding: .75rem 0;
             background: none;
             border: none;
-            color: var(--text-gray);
-            font-size: 1.5rem;
+            border-bottom: 2px solid transparent;
+            color: var(--gray-400);
+            font-size: .95rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all .15s;
+        }
+        .tab.active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+        }
+        label {
+            display: block;
+            font-size: .875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: .375rem;
+        }
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="url"] {
+            width: 100%;
+            padding: .625rem .75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: .95rem;
+            color: var(--gray-800);
+            background: var(--white);
+            transition: border-color .15s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        }
+        .field { margin-bottom: 1rem; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: .625rem 1.25rem;
+            border-radius: var(--radius);
+            font-size: .875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background .15s, box-shadow .15s;
+            text-decoration: none;
+        }
+        .btn-primary {
+            width: 100%;
+            background: var(--blue);
+            color: var(--white);
+        }
+        .btn-primary:hover { background: var(--blue-dark); }
+        .btn-outline {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+        .btn-outline:hover { background: var(--gray-50); }
+        .btn-danger-outline {
+            background: var(--white);
+            color: var(--red);
+            border: 1px solid var(--gray-200);
+        }
+        .btn-danger-outline:hover { background: var(--red-bg); }
+        .btn-sm { padding: .375rem .75rem; font-size: .8125rem; }
+
+        .alert {
+            padding: .75rem 1rem;
+            border-radius: var(--radius);
+            font-size: .875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .alert.show { display: block; }
+        .alert-error { background: var(--red-bg); color: var(--red); }
+        .alert-warning { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #fde68a; }
+        .alert-info { background: var(--blue-light); color: var(--blue); }
+
+        /* --- Dashboard shell --- */
+        .dashboard { display: none; }
+        .dashboard.active { display: block; }
+
+        .topbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 1.5rem;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .topbar-brand {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+        .topbar-email {
+            font-size: .875rem;
+            color: var(--gray-500);
+        }
+        .topbar-plan {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: .2rem .5rem;
+            border-radius: 4px;
+            background: var(--blue-light);
+            color: var(--blue);
+            text-transform: capitalize;
         }
 
-        .modal-close:hover {
-            color: var(--text-light);
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* --- Trial banner --- */
+        .trial-banner {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--yellow-bg);
+            border: 1px solid #fde68a;
+            border-radius: var(--radius);
+            padding: .75rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: .875rem;
+            color: var(--gray-700);
+        }
+        .trial-banner.show { display: flex; }
+        .trial-banner strong { color: var(--gray-900); }
+
+        .expired-banner {
+            display: none;
+            background: var(--red-bg);
+            border: 1px solid #fecaca;
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: .875rem;
+            color: var(--gray-700);
+        }
+        .expired-banner.show { display: block; }
+        .expired-banner strong { color: var(--red); }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .page-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .link-count {
+            font-size: .875rem;
+            color: var(--gray-400);
+            font-weight: 400;
+        }
+
+        /* --- Link cards --- */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+        }
+        .link-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow .15s;
+        }
+        .link-card:hover { box-shadow: var(--shadow); }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-dot.up { background: var(--green); }
+        .status-dot.down { background: var(--red); }
+        .status-dot.unknown { background: var(--gray-300); }
+
+        .link-info { flex: 1; min-width: 0; }
+        .link-name {
+            font-weight: 600;
+            font-size: .95rem;
+            color: var(--gray-900);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .link-url {
+            font-size: .8125rem;
+            color: var(--gray-400);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .link-meta {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .link-status-label {
+            font-size: .8125rem;
+            font-weight: 600;
+        }
+        .link-status-label.up { color: var(--green); }
+        .link-status-label.down { color: var(--red); }
+        .link-status-label.unknown { color: var(--gray-400); }
+        .link-checked {
+            font-size: .75rem;
+            color: var(--gray-400);
+        }
+        .link-actions {
+            display: flex;
+            gap: .375rem;
+            flex-shrink: 0;
         }
 
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
+            color: var(--gray-400);
         }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
         .empty-state h3 {
-            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--gray-600);
+            margin-bottom: .5rem;
         }
+        .empty-state p { margin-bottom: 1.5rem; }
 
-        .empty-state p {
-            color: var(--text-gray);
-            margin-bottom: 2rem;
-        }
-
-        .loading {
+        .loading-state {
             text-align: center;
-            padding: 2rem;
-            color: var(--text-gray);
+            padding: 3rem;
+            color: var(--gray-400);
         }
 
-        .spinner {
-            border: 3px solid var(--border-glow);
-            border-top: 3px solid var(--accent-purple);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+        /* --- Modals --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.4);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--white);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.15);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .modal-head h3 { font-size: 1.1rem; font-weight: 700; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: .25rem;
+        }
+        .modal-close:hover { color: var(--gray-600); }
+        .modal-body { padding: 1.5rem; }
+
+        /* --- Pricing modal --- */
+        .modal-pricing { max-width: 780px; }
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .plan-card {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+        }
+        .plan-card.featured { border-color: var(--blue); border-width: 2px; }
+        .plan-badge {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--blue);
+            background: var(--blue-light);
+            padding: .15rem .5rem;
+            border-radius: 4px;
+            margin-bottom: .5rem;
+        }
+        .plan-name {
+            font-size: .875rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+        .plan-price {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin: .5rem 0;
+        }
+        .plan-price span { font-size: .875rem; font-weight: 400; color: var(--gray-400); }
+        .plan-features {
+            list-style: none;
+            text-align: left;
+            margin: 1.25rem 0;
+            font-size: .8125rem;
+            color: var(--gray-600);
+        }
+        .plan-features li {
+            padding: .35rem 0;
+        }
+        .plan-features li::before {
+            content: "\2713  ";
+            color: var(--green);
+            font-weight: 700;
+        }
+        .plan-cta {
+            display: block;
+            width: 100%;
+            text-align: center;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* --- History modal --- */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .8125rem;
         }
+        .history-table th {
+            text-align: left;
+            padding: .5rem .75rem;
+            border-bottom: 2px solid var(--gray-200);
+            color: var(--gray-500);
+            font-weight: 600;
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+        .history-table td {
+            padding: .5rem .75rem;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-600);
+        }
+        .history-up { color: var(--green); font-weight: 600; }
+        .history-down { color: var(--red); font-weight: 600; }
 
-        @media (max-width: 768px) {
-            .links-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .dashboard-title {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
+        @media (max-width: 640px) {
+            .page-header { flex-direction: column; gap: .75rem; align-items: flex-start; }
+            .link-card { flex-wrap: wrap; }
+            .link-meta { display: none; }
+            .plans-grid { grid-template-columns: 1fr; }
+            .topbar-email { display: none; }
+            .trial-banner { flex-direction: column; gap: .5rem; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
-    <!-- Auth Page -->
-    <div id="authPage" class="auth-container">
-        <div class="auth-box">
-            <div class="auth-logo">
-                <h1>CheckBioLink</h1>
-                <p style="color: var(--text-gray); margin-top: 0.5rem;">Monitor your links 24/7</p>
+
+<!-- ========== AUTH ========== -->
+<div id="authPage" class="auth-page">
+    <div class="auth-card">
+        <h1>CheckBioLink</h1>
+        <p class="subtitle">Monitor your links around the clock.</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login')">Sign in</button>
+            <button class="tab" onclick="switchTab('register')">Create account</button>
+        </div>
+
+        <div class="alert alert-error" id="authError"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="field">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required placeholder="you@example.com">
             </div>
-
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchTab('login')">Login</button>
-                <button class="auth-tab" onclick="switchTab('register')">Register</button>
+            <div class="field">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required placeholder="Your password">
             </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
 
-            <div class="error-message" id="authError"></div>
+        <form id="registerForm" onsubmit="handleRegister(event)" style="display:none">
+            <div class="field">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" required placeholder="you@example.com">
+            </div>
+            <div class="field">
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" required placeholder="Min. 8 characters" minlength="8">
+            </div>
+            <button type="submit" class="btn btn-primary">Create account</button>
+        </form>
+    </div>
+</div>
 
-            <!-- Login Form -->
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" required placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn-primary">Sign In</button>
-            </form>
-
-            <!-- Register Form -->
-            <form id="registerForm" onsubmit="handleRegister(event)" style="display: none;">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="registerEmail" required placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="registerPassword" required placeholder="••••••••" minlength="8">
-                </div>
-                <button type="submit" class="btn-primary">Create Account</button>
-            </form>
+<!-- ========== DASHBOARD ========== -->
+<div id="dashboardPage" class="dashboard">
+    <div class="topbar">
+        <div class="topbar-brand">CheckBioLink</div>
+        <div class="topbar-right">
+            <span class="topbar-plan" id="planBadge"></span>
+            <span class="topbar-email" id="userEmail"></span>
+            <button class="btn btn-outline btn-sm" onclick="showPricing()">Plans</button>
+            <button class="btn btn-outline btn-sm" onclick="handleLogout()">Sign out</button>
         </div>
     </div>
 
-    <!-- Dashboard -->
-    <div id="dashboardPage" class="dashboard">
-        <div class="dashboard-header">
-            <div class="header-content">
-                <div class="logo-text">CheckBioLink</div>
-                <div class="header-actions">
-                    <span class="user-email" id="userEmail"></span>
-                    <button class="btn-secondary" onclick="handleLogout()">Logout</button>
-                </div>
-            </div>
+    <div class="main">
+        <!-- Trial banner -->
+        <div class="trial-banner" id="trialBanner">
+            <span>You have <strong id="trialDays"></strong> days left in your free trial.</span>
+            <button class="btn btn-sm btn-primary" onclick="showPricing()">Choose a plan</button>
         </div>
 
-        <div class="dashboard-content">
-            <div class="dashboard-title">
-                <h2>Your Links</h2>
-                <button class="btn-add" onclick="openAddModal()">+ Add Link</button>
-            </div>
+        <!-- Expired banner -->
+        <div class="expired-banner" id="expiredBanner">
+            <strong>Your trial has ended.</strong>
+            <p style="margin-top:.5rem">Subscribe to keep monitoring your links.</p>
+            <button class="btn btn-primary btn-sm" onclick="showPricing()" style="margin-top:.75rem">View plans</button>
+        </div>
 
-            <div id="linksContainer" class="loading">
-                <div class="spinner"></div>
-                <p>Loading your links...</p>
-            </div>
+        <div class="page-header">
+            <h2>Links <span class="link-count" id="linkCount"></span></h2>
+            <button class="btn btn-primary btn-sm" id="addLinkBtn" onclick="openAddModal()">+ Add link</button>
+        </div>
+
+        <div id="linksContainer">
+            <div class="loading-state">Loading...</div>
         </div>
     </div>
+</div>
 
-    <!-- Add Link Modal -->
-    <div id="addLinkModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add New Link</h3>
-                <button class="modal-close" onclick="closeAddModal()">&times;</button>
-            </div>
+<!-- ========== ADD LINK MODAL ========== -->
+<div id="addLinkOverlay" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Add a link</h3>
+            <button class="modal-close" onclick="closeAddModal()">&times;</button>
+        </div>
+        <div class="modal-body">
             <form onsubmit="handleAddLink(event)">
-                <div class="form-group">
-                    <label>Link Name</label>
-                    <input type="text" id="linkName" required placeholder="e.g., My Website">
+                <div class="field">
+                    <label for="linkName">Name</label>
+                    <input type="text" id="linkName" required placeholder="My Website">
                 </div>
-                <div class="form-group">
-                    <label>URL</label>
+                <div class="field">
+                    <label for="linkUrl">URL</label>
                     <input type="url" id="linkUrl" required placeholder="https://example.com">
                 </div>
-                <button type="submit" class="btn-primary">Add Link</button>
+                <button type="submit" class="btn btn-primary">Add link</button>
             </form>
         </div>
     </div>
+</div>
 
-    <script>
-        let currentUser = null;
+<!-- ========== HISTORY MODAL ========== -->
+<div id="historyOverlay" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="historyTitle">Check history</h3>
+            <button class="modal-close" onclick="closeHistory()">&times;</button>
+        </div>
+        <div class="modal-body" id="historyBody">
+            <p class="loading-state">Loading...</p>
+        </div>
+    </div>
+</div>
 
-        // Auth Functions
-        function switchTab(tab) {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const tabs = document.querySelectorAll('.auth-tab');
-            
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            if (tab === 'login') {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                tabs[0].classList.add('active');
-            } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                tabs[1].classList.add('active');
-            }
-            
-            hideError();
-        }
-
-        function showError(message) {
-            const errorEl = document.getElementById('authError');
-            errorEl.textContent = message;
-            errorEl.classList.add('show');
-        }
-
-        function hideError() {
-            const errorEl = document.getElementById('authError');
-            errorEl.classList.remove('show');
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            hideError();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email, password})
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    currentUser = data.user;
-                    showDashboard();
-                } else {
-                    showError(data.error || 'Login failed');
-                }
-            } catch (error) {
-                showError('Network error. Please try again.');
-            }
-        }
-
-        async function handleRegister(e) {
-            e.preventDefault();
-            hideError();
-            
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            
-            try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email, password})
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    currentUser = data.user;
-                    showDashboard();
-                } else {
-                    showError(data.error || 'Registration failed');
-                }
-            } catch (error) {
-                showError('Network error. Please try again.');
-            }
-        }
-
-        function handleLogout() {
-            fetch('/api/logout', {method: 'POST'})
-                .then(() => {
-                    currentUser = null;
-                    document.getElementById('authPage').style.display = 'flex';
-                    document.getElementById('dashboardPage').classList.remove('active');
-                });
-        }
-
-        // Dashboard Functions
-        function showDashboard() {
-            document.getElementById('authPage').style.display = 'none';
-            document.getElementById('dashboardPage').classList.add('active');
-            document.getElementById('userEmail').textContent = currentUser.email;
-            loadLinks();
-        }
-
-        async function loadLinks() {
-            const container = document.getElementById('linksContainer');
-            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
-            
-            try {
-                const response = await fetch('/api/links');
-                const data = await response.json();
-                
-                if (data.links && data.links.length > 0) {
-                    container.innerHTML = '<div class="links-grid"></div>';
-                    const grid = container.querySelector('.links-grid');
-                    
-                    data.links.forEach(link => {
-                        grid.appendChild(createLinkCard(link));
-                    });
-                } else {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🔗</div>
-                            <h3>No links yet</h3>
-                            <p>Add your first link to start monitoring</p>
-                            <button class="btn-primary" onclick="openAddModal()" style="max-width: 200px; margin: 0 auto;">Add Link</button>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                container.innerHTML = '<p style="text-align: center; color: var(--accent-pink);">Error loading links</p>';
-            }
-        }
-
-        function createLinkCard(link) {
-            const card = document.createElement('div');
-            card.className = 'link-card';
-            
-            const statusClass = link.status || 'unknown';
-            const statusText = link.status === 'up' ? 'Online' : link.status === 'down' ? 'Offline' : 'Checking...';
-            const lastChecked = link.last_checked ? new Date(link.last_checked).toLocaleString() : 'Never';
-            
-            card.innerHTML = `
-                <div class="link-status">
-                    <div class="status-dot ${statusClass}"></div>
-                    <span>${statusText}</span>
+<!-- ========== PRICING MODAL ========== -->
+<div id="pricingOverlay" class="modal-overlay">
+    <div class="modal modal-pricing">
+        <div class="modal-head">
+            <h3>Choose your plan</h3>
+            <button class="modal-close" onclick="closePricing()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="color:var(--gray-500);font-size:.875rem;margin-bottom:1.25rem;text-align:center">All plans include a 14-day free trial. Cancel anytime.</p>
+            <div class="plans-grid">
+                <div class="plan-card">
+                    <div class="plan-name">Starter</div>
+                    <div class="plan-price">$7<span>/mo</span></div>
+                    <ul class="plan-features">
+                        <li>3 links monitored</li>
+                        <li>Checked every 4 hours</li>
+                        <li>Email alerts</li>
+                        <li>30-day history</li>
+                    </ul>
+                    <a href="https://buy.stripe.com/dRmaEYbaB6Cxextdh8gfu00" class="btn btn-outline plan-cta">Start free trial</a>
                 </div>
-                <div class="link-name">${link.name || 'Unnamed Link'}</div>
-                <div class="link-url">${link.url}</div>
-                <div class="link-meta">
-                    <span>Last checked: ${lastChecked}</span>
+                <div class="plan-card featured">
+                    <span class="plan-badge">Popular</span>
+                    <div class="plan-name">Pro</div>
+                    <div class="plan-price">$15<span>/mo</span></div>
+                    <ul class="plan-features">
+                        <li>10 links monitored</li>
+                        <li>Checked every 2 hours</li>
+                        <li>Email alerts</li>
+                        <li>90-day history</li>
+                    </ul>
+                    <a href="https://buy.stripe.com/14A5kE6Ul9OJahdgtkgfu01" class="btn btn-primary plan-cta">Start free trial</a>
                 </div>
-                <div class="link-actions">
-                    <button class="btn-small" onclick="checkLink(${link.id})">Check Now</button>
-                    <button class="btn-small btn-danger" onclick="deleteLink(${link.id})">Delete</button>
+                <div class="plan-card">
+                    <div class="plan-name">Agency</div>
+                    <div class="plan-price">$29<span>/mo</span></div>
+                    <ul class="plan-features">
+                        <li>50 links monitored</li>
+                        <li>Checked every hour</li>
+                        <li>Email alerts</li>
+                        <li>1-year history</li>
+                    </ul>
+                    <a href="https://buy.stripe.com/4gM00k5Qh7GB4WTfpggfu02" class="btn btn-outline plan-cta">Start free trial</a>
                 </div>
-            `;
-            
-            return card;
-        }
+            </div>
+        </div>
+    </div>
+</div>
 
-        // Link Actions
-        function openAddModal() {
-            document.getElementById('addLinkModal').classList.add('active');
-        }
+<script>
+let currentUser = null;
 
-        function closeAddModal() {
-            document.getElementById('addLinkModal').classList.remove('active');
-            document.getElementById('linkName').value = '';
-            document.getElementById('linkUrl').value = '';
-        }
+/* ---------- Auth ---------- */
+function switchTab(tab) {
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+    document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+    });
+    hideError();
+}
 
-        async function handleAddLink(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('linkName').value;
-            const url = document.getElementById('linkUrl').value;
-            
-            try {
-                const response = await fetch('/api/links', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({name, url})
-                });
-                
-                if (response.ok) {
-                    closeAddModal();
-                    loadLinks();
-                } else {
-                    alert('Failed to add link');
-                }
-            } catch (error) {
-                alert('Network error');
-            }
-        }
+function showError(msg) {
+    const el = document.getElementById('authError');
+    el.textContent = msg;
+    el.classList.add('show');
+}
+function hideError() {
+    document.getElementById('authError').classList.remove('show');
+}
 
-        async function checkLink(id) {
-            try {
-                await fetch(`/api/links/${id}/check`, {method: 'POST'});
-                setTimeout(loadLinks, 2000); // Reload after 2 seconds
-            } catch (error) {
-                alert('Error checking link');
-            }
-        }
-
-        async function deleteLink(id) {
-            if (!confirm('Are you sure you want to delete this link?')) return;
-            
-            try {
-                await fetch(`/api/links/${id}`, {method: 'DELETE'});
-                loadLinks();
-            } catch (error) {
-                alert('Error deleting link');
-            }
-        }
-
-        // Check if already logged in on page load
-        window.addEventListener('load', async () => {
-            try {
-                const response = await fetch('/api/links');
-                if (response.ok) {
-                    // User is logged in
-                    const data = await response.json();
-                    // We don't have user info from this endpoint, but we can fake it
-                    currentUser = {email: 'Logged in'};
-                    showDashboard();
-                }
-            } catch (error) {
-                // Not logged in, show auth page
-            }
+async function handleLogin(e) {
+    e.preventDefault();
+    hideError();
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            })
         });
-    </script>
+        const data = await res.json();
+        if (res.ok) { await enterDashboard(); }
+        else { showError(data.error || 'Login failed'); }
+    } catch { showError('Network error. Please try again.'); }
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    hideError();
+    try {
+        const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value
+            })
+        });
+        const data = await res.json();
+        if (res.ok) { await enterDashboard(); }
+        else { showError(data.error || 'Registration failed'); }
+    } catch { showError('Network error. Please try again.'); }
+}
+
+function handleLogout() {
+    fetch('/api/logout', {method: 'POST', headers: {'Content-Type': 'application/json'}})
+        .then(() => {
+            currentUser = null;
+            document.getElementById('authPage').style.display = 'flex';
+            document.getElementById('dashboardPage').classList.remove('active');
+        });
+}
+
+/* ---------- Dashboard init ---------- */
+async function enterDashboard() {
+    try {
+        const res = await fetch('/api/user/status');
+        if (!res.ok) return;
+        currentUser = await res.json();
+    } catch { return; }
+
+    document.getElementById('authPage').style.display = 'none';
+    document.getElementById('dashboardPage').classList.add('active');
+    document.getElementById('userEmail').textContent = currentUser.email;
+    document.getElementById('planBadge').textContent = currentUser.plan;
+
+    // Trial banner
+    const trialBanner = document.getElementById('trialBanner');
+    const expiredBanner = document.getElementById('expiredBanner');
+    trialBanner.classList.remove('show');
+    expiredBanner.classList.remove('show');
+
+    if (currentUser.subscription_status === 'trial') {
+        if (currentUser.is_trial_active) {
+            document.getElementById('trialDays').textContent = currentUser.days_left_in_trial;
+            trialBanner.classList.add('show');
+        } else {
+            expiredBanner.classList.add('show');
+        }
+    } else if (currentUser.subscription_status === 'canceled') {
+        expiredBanner.querySelector('strong').textContent = 'Your subscription has been canceled.';
+        expiredBanner.classList.add('show');
+    }
+
+    loadLinks();
+}
+
+/* ---------- Links ---------- */
+async function loadLinks() {
+    const container = document.getElementById('linksContainer');
+    container.innerHTML = '<div class="loading-state">Loading...</div>';
+
+    try {
+        const res = await fetch('/api/links');
+        const data = await res.json();
+
+        if (res.status === 403 && data.trial_expired) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const links = data.links || [];
+        document.getElementById('linkCount').textContent = currentUser
+            ? `(${links.length} / ${currentUser.links_limit})`
+            : '';
+
+        if (links.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>No links yet</h3>
+                    <p>Add your first link to start monitoring.</p>
+                    <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Add link</button>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = '<div class="links-list"></div>';
+        const list = container.querySelector('.links-list');
+        links.forEach(link => list.appendChild(createLinkCard(link)));
+    } catch {
+        container.innerHTML = '<p style="text-align:center;color:var(--red)">Error loading links.</p>';
+    }
+}
+
+function createLinkCard(link) {
+    const card = document.createElement('div');
+    card.className = 'link-card';
+
+    const status = link.status || 'unknown';
+    const statusLabel = status === 'up' ? 'Up' : status === 'down' ? 'Down' : 'Pending';
+    const checked = link.last_checked
+        ? 'Checked ' + timeAgo(new Date(link.last_checked))
+        : 'Not checked yet';
+
+    card.innerHTML = `
+        <div class="status-dot ${status}"></div>
+        <div class="link-info">
+            <div class="link-name">${esc(link.name || 'Unnamed')}</div>
+            <div class="link-url">${esc(link.url)}</div>
+        </div>
+        <div class="link-meta">
+            <div class="link-status-label ${status}">${statusLabel}</div>
+            <div class="link-checked">${checked}</div>
+        </div>
+        <div class="link-actions">
+            <button class="btn btn-outline btn-sm" onclick="viewHistory(${link.id}, '${esc(link.name || link.url)}')">History</button>
+            <button class="btn btn-outline btn-sm" onclick="checkLink(${link.id}, this)">Check</button>
+            <button class="btn btn-danger-outline btn-sm" onclick="deleteLink(${link.id})">Delete</button>
+        </div>`;
+    return card;
+}
+
+/* ---------- Link actions ---------- */
+function openAddModal() { document.getElementById('addLinkOverlay').classList.add('active'); }
+function closeAddModal() {
+    document.getElementById('addLinkOverlay').classList.remove('active');
+    document.getElementById('linkName').value = '';
+    document.getElementById('linkUrl').value = '';
+}
+
+async function handleAddLink(e) {
+    e.preventDefault();
+    try {
+        const res = await fetch('/api/links', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                name: document.getElementById('linkName').value,
+                url: document.getElementById('linkUrl').value
+            })
+        });
+        if (res.ok) {
+            closeAddModal();
+            // Refresh user status too (link count changed)
+            const statusRes = await fetch('/api/user/status');
+            if (statusRes.ok) currentUser = await statusRes.json();
+            loadLinks();
+        } else {
+            const data = await res.json();
+            alert(data.error || 'Failed to add link');
+        }
+    } catch { alert('Network error'); }
+}
+
+async function checkLink(id, btn) {
+    if (btn) { btn.textContent = '...'; btn.disabled = true; }
+    try {
+        await fetch(`/api/links/${id}/check`, {method: 'POST', headers: {'Content-Type': 'application/json'}});
+        loadLinks();
+    } catch { alert('Error checking link'); }
+}
+
+async function deleteLink(id) {
+    if (!confirm('Delete this link?')) return;
+    try {
+        await fetch(`/api/links/${id}`, {method: 'DELETE', headers: {'Content-Type': 'application/json'}});
+        const statusRes = await fetch('/api/user/status');
+        if (statusRes.ok) currentUser = await statusRes.json();
+        loadLinks();
+    } catch { alert('Error deleting link'); }
+}
+
+/* ---------- History ---------- */
+async function viewHistory(id, name) {
+    document.getElementById('historyTitle').textContent = `History: ${name}`;
+    document.getElementById('historyBody').innerHTML = '<p class="loading-state">Loading...</p>';
+    document.getElementById('historyOverlay').classList.add('active');
+
+    try {
+        const res = await fetch(`/api/links/${id}/history`);
+        const data = await res.json();
+        const checks = data.history || [];
+
+        if (checks.length === 0) {
+            document.getElementById('historyBody').innerHTML = '<p style="color:var(--gray-400);text-align:center">No check history yet.</p>';
+            return;
+        }
+
+        let rows = checks.map(c => {
+            const time = new Date(c.checked_at).toLocaleString();
+            const cls = c.is_up ? 'history-up' : 'history-down';
+            const label = c.is_up ? 'Up' : 'Down';
+            const code = c.status_code || '-';
+            const rt = c.response_time ? c.response_time.toFixed(2) + 's' : '-';
+            return `<tr>
+                <td>${time}</td>
+                <td class="${cls}">${label}</td>
+                <td>${code}</td>
+                <td>${rt}</td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('historyBody').innerHTML = `
+            <table class="history-table">
+                <thead><tr><th>Time</th><th>Status</th><th>Code</th><th>Response</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+    } catch {
+        document.getElementById('historyBody').innerHTML = '<p style="color:var(--red)">Error loading history.</p>';
+    }
+}
+function closeHistory() { document.getElementById('historyOverlay').classList.remove('active'); }
+
+/* ---------- Pricing ---------- */
+function showPricing() { document.getElementById('pricingOverlay').classList.add('active'); }
+function closePricing() { document.getElementById('pricingOverlay').classList.remove('active'); }
+
+/* ---------- Helpers ---------- */
+function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+function timeAgo(date) {
+    const s = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + 'm ago';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+    return Math.floor(s / 86400) + 'd ago';
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('active'); });
+});
+
+// Auto-login check on page load
+window.addEventListener('load', () => enterDashboard());
+</script>
 </body>
 </html>

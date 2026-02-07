@@ -9,12 +9,27 @@ import time
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
+import stripe
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+
+# CSRF protection for JSON API endpoints
+@app.before_request
+def csrf_check():
+    if request.method in ('POST', 'PUT', 'DELETE'):
+        # Exempt webhook and cron endpoints (they use their own auth)
+        exempt = ('/webhook/stripe', '/api/check-all')
+        if request.path in exempt:
+            return
+        # Require JSON content type on mutating requests
+        if request.content_type and 'application/json' not in request.content_type:
+            return jsonify({'error': 'Invalid content type'}), 400
 
 # Initialize extensions
 db.init_app(app)
@@ -270,6 +285,128 @@ def trigger_check_all():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/webhook/stripe', methods=['POST'])
+def stripe_webhook():
+    """Handle Stripe webhook events"""
+    payload = request.get_data()
+    sig_header = request.headers.get('Stripe-Signature')
+    webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
+    
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, webhook_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        print(f"Invalid payload: {e}")
+        return jsonify({'error': 'Invalid payload'}), 400
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        print(f"Invalid signature: {e}")
+        return jsonify({'error': 'Invalid signature'}), 400
+    
+    # Handle the event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        handle_checkout_completed(session)
+    
+    elif event['type'] == 'customer.subscription.updated':
+        subscription = event['data']['object']
+        handle_subscription_updated(subscription)
+    
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription = event['data']['object']
+        handle_subscription_deleted(subscription)
+    
+    return jsonify({'status': 'success'}), 200
+
+
+def handle_checkout_completed(session):
+    """Handle successful checkout - activate user subscription"""
+    customer_email = session.get('customer_details', {}).get('email')
+    customer_id = session.get('customer')
+    subscription_id = session.get('subscription')
+    
+    print(f"✅ Checkout completed for {customer_email}")
+    
+    # Find user by email
+    user = User.query.filter_by(email=customer_email).first()
+    
+    if user:
+        # Get subscription details to determine plan
+        if subscription_id:
+            subscription = stripe.Subscription.retrieve(subscription_id)
+            price_id = subscription['items']['data'][0]['price']['id']
+            
+            # Map price to plan (you'll need to update these price IDs)
+            plan = get_plan_from_price(price_id)
+            
+            user.subscription_status = 'active'
+            user.stripe_customer_id = customer_id
+            user.stripe_subscription_id = subscription_id
+            user.plan = plan
+            user.trial_ends_at = None  # Clear trial since they're now paid
+            
+            db.session.commit()
+            print(f"✅ User {customer_email} upgraded to {plan} plan")
+    else:
+        # New user from direct payment link - create account
+        # They'll need to set password later
+        print(f"⚠️ No existing user found for {customer_email}")
+        # Optionally create a new user here
+
+
+def handle_subscription_updated(subscription):
+    """Handle subscription changes (upgrades, downgrades)"""
+    customer_id = subscription.get('customer')
+    status = subscription.get('status')
+    price_id = subscription['items']['data'][0]['price']['id']
+    
+    user = User.query.filter_by(stripe_customer_id=customer_id).first()
+    
+    if user:
+        if status == 'active':
+            user.subscription_status = 'active'
+            user.plan = get_plan_from_price(price_id)
+        elif status == 'past_due':
+            user.subscription_status = 'past_due'
+        elif status == 'canceled':
+            user.subscription_status = 'canceled'
+        
+        db.session.commit()
+        print(f"✅ Subscription updated for {user.email}: {status}")
+
+
+def handle_subscription_deleted(subscription):
+    """Handle subscription cancellation"""
+    customer_id = subscription.get('customer')
+    
+    user = User.query.filter_by(stripe_customer_id=customer_id).first()
+    
+    if user:
+        user.subscription_status = 'canceled'
+        user.plan = 'starter'  # Downgrade to starter
+        db.session.commit()
+        print(f"✅ Subscription canceled for {user.email}")
+
+
+def get_plan_from_price(price_id):
+    """Map Stripe price ID to plan name"""
+    # UPDATE THESE WITH YOUR ACTUAL STRIPE PRICE IDs
+    # Find them in Stripe Dashboard > Products > Click product > Copy price ID
+    price_to_plan = {
+        os.environ.get('STRIPE_PRICE_STARTER', ''): 'starter',
+        os.environ.get('STRIPE_PRICE_PRO', ''): 'pro',
+        os.environ.get('STRIPE_PRICE_BUSINESS', ''): 'business',
+    }
+    
+    return price_to_plan.get(price_id, 'starter')
+
+
+@app.route('/payment-success')
+def payment_success():
+    """Page shown after successful payment"""
+    return render_template('payment_success.html')
 
 # Scheduler
 def run_scheduler():

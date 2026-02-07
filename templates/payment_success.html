@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - CheckBioLink</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            text-align: center;
+            max-width: 440px;
+        }
+        .icon {
+            width: 72px;
+            height: 72px;
+            background: #16a34a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+        p {
+            color: #6b7280;
+            font-size: .95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            padding: .75rem 1.5rem;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 8px;
+            font-size: .875rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .btn:hover { background: #1d4ed8; }
+        .next {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .next h3 {
+            font-size: .875rem;
+            color: #6b7280;
+            margin-bottom: .75rem;
+        }
+        .next ul {
+            list-style: none;
+            text-align: left;
+            display: inline-block;
+            font-size: .875rem;
+            color: #4b5563;
+        }
+        .next li { padding: .3rem 0; }
+        .next li::before { content: "\2713  "; color: #16a34a; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">&#10003;</div>
+        <h1>You're all set</h1>
+        <p>Your subscription is active. Start monitoring your links now.</p>
+        <a href="/" class="btn">Go to dashboard</a>
+        <div class="next">
+            <h3>What's next?</h3>
+            <ul>
+                <li>Add your links to monitor</li>
+                <li>Get email alerts when sites go down</li>
+                <li>Check status anytime from your dashboard</li>
+            </ul>
+        </div>
+    </div>
+    <script>setTimeout(() => { window.location.href = '/'; }, 5000);</script>
+</body>
+</html>
