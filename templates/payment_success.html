@@ -7,9 +7,9 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f9fafb;
-            color: #1f2937;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0a0a;
+            color: #d4d4d4;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -23,7 +23,7 @@
         .icon {
             width: 72px;
             height: 72px;
-            background: #16a34a;
+            background: #22c55e;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -36,33 +36,35 @@
         h1 {
             font-size: 1.5rem;
             font-weight: 700;
+            color: #ffffff;
             margin-bottom: .5rem;
         }
         p {
-            color: #6b7280;
+            color: #888888;
             font-size: .95rem;
             margin-bottom: 1.5rem;
             line-height: 1.6;
         }
-        .btn {
+        .btn-primary {
             display: inline-block;
             padding: .75rem 1.5rem;
-            background: #2563eb;
+            background: #3b82f6;
             color: #fff;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: .875rem;
             font-weight: 600;
             text-decoration: none;
+            transition: background 0.2s;
         }
-        .btn:hover { background: #1d4ed8; }
+        .btn-primary:hover { background: #2563eb; }
         .next {
             margin-top: 2rem;
             padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid #2a2a2a;
         }
         .next h3 {
             font-size: .875rem;
-            color: #6b7280;
+            color: #888888;
             margin-bottom: .75rem;
         }
         .next ul {
@@ -70,10 +72,10 @@
             text-align: left;
             display: inline-block;
             font-size: .875rem;
-            color: #4b5563;
+            color: #d4d4d4;
         }
         .next li { padding: .3rem 0; }
-        .next li::before { content: "\2713  "; color: #16a34a; font-weight: 700; }
+        .next li::before { content: "\2713  "; color: #22c55e; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -81,7 +83,7 @@
         <div class="icon">&#10003;</div>
         <h1>You're all set</h1>
         <p>Your subscription is active. Start monitoring your links now.</p>
-        <a href="/" class="btn">Go to dashboard</a>
+        <a href="/" class="btn-primary">Go to dashboard</a>
         <div class="next">
             <h3>What's next?</h3>
             <ul>

@@ -8,37 +8,27 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --blue: #2563eb;
-            --blue-light: #eff6ff;
-            --blue-dark: #1d4ed8;
-            --green: #16a34a;
-            --green-bg: #f0fdf4;
-            --red: #dc2626;
-            --red-bg: #fef2f2;
-            --yellow: #ca8a04;
-            --yellow-bg: #fefce8;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
+            --black: #0a0a0a;
+            --gray-900: #121212;
+            --gray-800: #1a1a1a;
+            --gray-700: #2a2a2a;
+            --gray-600: #3a3a3a;
+            --gray-400: #888888;
+            --gray-200: #d4d4d4;
             --white: #ffffff;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-            --radius: 8px;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #eab308;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--gray-50);
-            color: var(--gray-800);
-            line-height: 1.5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* --- Auth page --- */
@@ -48,7 +38,6 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            background: var(--white);
         }
         .auth-card {
             width: 100%;
@@ -57,17 +46,16 @@
         .auth-card h1 {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--gray-900);
             margin-bottom: .25rem;
         }
         .auth-card .subtitle {
-            color: var(--gray-500);
+            color: var(--gray-400);
             font-size: .95rem;
             margin-bottom: 2rem;
         }
         .tabs {
             display: flex;
-            border-bottom: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--gray-700);
             margin-bottom: 1.5rem;
         }
         .tab {
@@ -80,17 +68,17 @@
             font-size: .95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all .15s;
+            transition: all .2s;
         }
         .tab.active {
-            color: var(--blue);
-            border-bottom-color: var(--blue);
+            color: var(--accent);
+            border-bottom-color: var(--accent);
         }
         label {
             display: block;
             font-size: .875rem;
             font-weight: 500;
-            color: var(--gray-700);
+            color: var(--gray-200);
             margin-bottom: .375rem;
         }
         input[type="email"],
@@ -99,85 +87,94 @@
         input[type="url"] {
             width: 100%;
             padding: .625rem .75rem;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius);
+            border: 1px solid var(--gray-700);
+            border-radius: 6px;
             font-size: .95rem;
-            color: var(--gray-800);
-            background: var(--white);
-            transition: border-color .15s;
+            color: var(--white);
+            background: var(--gray-900);
+            transition: border-color .2s;
         }
         input:focus {
             outline: none;
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+            border-color: var(--accent);
         }
         .field { margin-bottom: 1rem; }
 
+        /* --- Buttons --- */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: .625rem 1.25rem;
-            border-radius: var(--radius);
+            padding: .6rem 1.25rem;
+            border-radius: 6px;
             font-size: .875rem;
-            font-weight: 600;
+            font-weight: 500;
             border: none;
             cursor: pointer;
-            transition: background .15s, box-shadow .15s;
+            transition: all .2s;
             text-decoration: none;
         }
         .btn-primary {
-            width: 100%;
-            background: var(--blue);
+            background: var(--accent);
             color: var(--white);
         }
-        .btn-primary:hover { background: var(--blue-dark); }
-        .btn-outline {
-            background: var(--white);
-            color: var(--gray-700);
-            border: 1px solid var(--gray-300);
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
         }
-        .btn-outline:hover { background: var(--gray-50); }
-        .btn-danger-outline {
-            background: var(--white);
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 1px solid var(--gray-600);
+        }
+        .btn-secondary:hover { border-color: var(--gray-400); }
+        .btn-danger {
+            background: transparent;
             color: var(--red);
-            border: 1px solid var(--gray-200);
+            border: 1px solid var(--gray-700);
         }
-        .btn-danger-outline:hover { background: var(--red-bg); }
+        .btn-danger:hover {
+            border-color: var(--red);
+            background: rgba(239,68,68,.1);
+        }
         .btn-sm { padding: .375rem .75rem; font-size: .8125rem; }
+        .btn-full { width: 100%; }
 
+        /* --- Alerts --- */
         .alert {
             padding: .75rem 1rem;
-            border-radius: var(--radius);
+            border-radius: 6px;
             font-size: .875rem;
             margin-bottom: 1rem;
             display: none;
         }
         .alert.show { display: block; }
-        .alert-error { background: var(--red-bg); color: var(--red); }
-        .alert-warning { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #fde68a; }
-        .alert-info { background: var(--blue-light); color: var(--blue); }
+        .alert-error {
+            background: rgba(239,68,68,.1);
+            border: 1px solid rgba(239,68,68,.25);
+            color: var(--red);
+        }
 
         /* --- Dashboard shell --- */
         .dashboard { display: none; }
         .dashboard.active { display: block; }
 
         .topbar {
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 0 1.5rem;
+            padding: 0 2rem;
             height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border-bottom: 1px solid var(--gray-800);
             position: sticky;
             top: 0;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
             z-index: 50;
         }
         .topbar-brand {
             font-size: 1.125rem;
             font-weight: 700;
-            color: var(--gray-900);
         }
         .topbar-right {
             display: flex;
@@ -186,50 +183,50 @@
         }
         .topbar-email {
             font-size: .875rem;
-            color: var(--gray-500);
+            color: var(--gray-400);
         }
         .topbar-plan {
             font-size: .75rem;
             font-weight: 600;
-            padding: .2rem .5rem;
+            padding: .2rem .6rem;
             border-radius: 4px;
-            background: var(--blue-light);
-            color: var(--blue);
+            background: rgba(59,130,246,.15);
+            color: var(--accent);
             text-transform: capitalize;
         }
 
         .main {
             max-width: 960px;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 2rem;
         }
 
-        /* --- Trial banner --- */
+        /* --- Trial / expired banners --- */
         .trial-banner {
             display: none;
             align-items: center;
             justify-content: space-between;
-            background: var(--yellow-bg);
-            border: 1px solid #fde68a;
-            border-radius: var(--radius);
+            background: rgba(234,179,8,.08);
+            border: 1px solid rgba(234,179,8,.2);
+            border-radius: 6px;
             padding: .75rem 1rem;
             margin-bottom: 1.5rem;
             font-size: .875rem;
-            color: var(--gray-700);
+            color: var(--gray-200);
         }
         .trial-banner.show { display: flex; }
-        .trial-banner strong { color: var(--gray-900); }
+        .trial-banner strong { color: var(--yellow); }
 
         .expired-banner {
             display: none;
-            background: var(--red-bg);
-            border: 1px solid #fecaca;
-            border-radius: var(--radius);
+            background: rgba(239,68,68,.08);
+            border: 1px solid rgba(239,68,68,.2);
+            border-radius: 6px;
             padding: 1.25rem;
             margin-bottom: 1.5rem;
             text-align: center;
             font-size: .875rem;
-            color: var(--gray-700);
+            color: var(--gray-200);
         }
         .expired-banner.show { display: block; }
         .expired-banner strong { color: var(--red); }
@@ -243,7 +240,6 @@
         .page-header h2 {
             font-size: 1.25rem;
             font-weight: 700;
-            color: var(--gray-900);
         }
         .link-count {
             font-size: .875rem;
@@ -258,17 +254,16 @@
             gap: .75rem;
         }
         .link-card {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius);
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
+            border-radius: 8px;
             padding: 1rem 1.25rem;
             display: flex;
             align-items: center;
             gap: 1rem;
-            box-shadow: var(--shadow-sm);
-            transition: box-shadow .15s;
+            transition: border-color .2s;
         }
-        .link-card:hover { box-shadow: var(--shadow); }
+        .link-card:hover { border-color: var(--gray-600); }
 
         .status-dot {
             width: 10px;
@@ -278,13 +273,12 @@
         }
         .status-dot.up { background: var(--green); }
         .status-dot.down { background: var(--red); }
-        .status-dot.unknown { background: var(--gray-300); }
+        .status-dot.unknown { background: var(--gray-600); }
 
         .link-info { flex: 1; min-width: 0; }
         .link-name {
             font-weight: 600;
             font-size: .95rem;
-            color: var(--gray-900);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -324,7 +318,7 @@
         }
         .empty-state h3 {
             font-size: 1.1rem;
-            color: var(--gray-600);
+            color: var(--gray-200);
             margin-bottom: .5rem;
         }
         .empty-state p { margin-bottom: 1.5rem; }
@@ -340,7 +334,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,.4);
+            background: rgba(0,0,0,.6);
             z-index: 100;
             align-items: center;
             justify-content: center;
@@ -348,11 +342,11 @@
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: var(--white);
+            background: var(--gray-800);
+            border: 1px solid var(--gray-700);
             border-radius: 12px;
             width: 100%;
             max-width: 480px;
-            box-shadow: 0 20px 60px rgba(0,0,0,.15);
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -361,7 +355,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--gray-700);
         }
         .modal-head h3 { font-size: 1.1rem; font-weight: 700; }
         .modal-close {
@@ -372,7 +366,7 @@
             cursor: pointer;
             padding: .25rem;
         }
-        .modal-close:hover { color: var(--gray-600); }
+        .modal-close:hover { color: var(--white); }
         .modal-body { padding: 1.5rem; }
 
         /* --- Pricing modal --- */
@@ -383,52 +377,67 @@
             gap: 1rem;
         }
         .plan-card {
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius);
+            background: var(--gray-900);
+            border: 1px solid var(--gray-700);
+            border-radius: 12px;
             padding: 1.5rem 1.25rem;
             text-align: center;
+            transition: all .3s;
         }
-        .plan-card.featured { border-color: var(--blue); border-width: 2px; }
-        .plan-badge {
-            display: inline-block;
-            font-size: .7rem;
-            font-weight: 700;
-            text-transform: uppercase;
+        .plan-card:hover {
+            border-color: var(--gray-600);
+            transform: translateY(-4px);
+        }
+        .plan-card.featured {
+            border-color: var(--accent);
+            position: relative;
+        }
+        .plan-card.featured::before {
+            content: 'POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: var(--white);
+            padding: .3rem 1rem;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 600;
             letter-spacing: .05em;
-            color: var(--blue);
-            background: var(--blue-light);
-            padding: .15rem .5rem;
-            border-radius: 4px;
-            margin-bottom: .5rem;
         }
         .plan-name {
             font-size: .875rem;
             font-weight: 600;
-            color: var(--gray-500);
+            color: var(--gray-400);
             text-transform: uppercase;
-            letter-spacing: .03em;
+            letter-spacing: .05em;
+            margin-bottom: .5rem;
         }
         .plan-price {
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: var(--gray-900);
             margin: .5rem 0;
         }
         .plan-price span { font-size: .875rem; font-weight: 400; color: var(--gray-400); }
+        .plan-trial {
+            color: var(--gray-400);
+            font-size: .9rem;
+            margin-bottom: 1rem;
+        }
         .plan-features {
             list-style: none;
             text-align: left;
             margin: 1.25rem 0;
-            font-size: .8125rem;
-            color: var(--gray-600);
+            font-size: .875rem;
+            color: var(--gray-200);
         }
-        .plan-features li {
-            padding: .35rem 0;
-        }
+        .plan-features li { padding: .4rem 0; }
         .plan-features li::before {
-            content: "\2713  ";
-            color: var(--green);
+            content: "\2713";
+            color: var(--accent);
             font-weight: 700;
+            margin-right: .7rem;
         }
         .plan-cta {
             display: block;
@@ -445,22 +454,22 @@
         .history-table th {
             text-align: left;
             padding: .5rem .75rem;
-            border-bottom: 2px solid var(--gray-200);
-            color: var(--gray-500);
+            border-bottom: 2px solid var(--gray-700);
+            color: var(--gray-400);
             font-weight: 600;
             font-size: .75rem;
             text-transform: uppercase;
-            letter-spacing: .03em;
+            letter-spacing: .05em;
         }
         .history-table td {
             padding: .5rem .75rem;
-            border-bottom: 1px solid var(--gray-100);
-            color: var(--gray-600);
+            border-bottom: 1px solid var(--gray-700);
+            color: var(--gray-200);
         }
         .history-up { color: var(--green); font-weight: 600; }
         .history-down { color: var(--red); font-weight: 600; }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .page-header { flex-direction: column; gap: .75rem; align-items: flex-start; }
             .link-card { flex-wrap: wrap; }
             .link-meta { display: none; }
@@ -494,7 +503,7 @@
                 <label for="loginPassword">Password</label>
                 <input type="password" id="loginPassword" required placeholder="Your password">
             </div>
-            <button type="submit" class="btn btn-primary">Sign in</button>
+            <button type="submit" class="btn btn-primary btn-full">Sign in</button>
         </form>
 
         <form id="registerForm" onsubmit="handleRegister(event)" style="display:none">
@@ -506,7 +515,7 @@
                 <label for="registerPassword">Password</label>
                 <input type="password" id="registerPassword" required placeholder="Min. 8 characters" minlength="8">
             </div>
-            <button type="submit" class="btn btn-primary">Create account</button>
+            <button type="submit" class="btn btn-primary btn-full">Create account</button>
         </form>
     </div>
 </div>
@@ -518,19 +527,17 @@
         <div class="topbar-right">
             <span class="topbar-plan" id="planBadge"></span>
             <span class="topbar-email" id="userEmail"></span>
-            <button class="btn btn-outline btn-sm" onclick="showPricing()">Plans</button>
-            <button class="btn btn-outline btn-sm" onclick="handleLogout()">Sign out</button>
+            <button class="btn btn-secondary btn-sm" onclick="showPricing()">Plans</button>
+            <button class="btn btn-secondary btn-sm" onclick="handleLogout()">Sign out</button>
         </div>
     </div>
 
     <div class="main">
-        <!-- Trial banner -->
         <div class="trial-banner" id="trialBanner">
             <span>You have <strong id="trialDays"></strong> days left in your free trial.</span>
             <button class="btn btn-sm btn-primary" onclick="showPricing()">Choose a plan</button>
         </div>
 
-        <!-- Expired banner -->
         <div class="expired-banner" id="expiredBanner">
             <strong>Your trial has ended.</strong>
             <p style="margin-top:.5rem">Subscribe to keep monitoring your links.</p>
@@ -565,7 +572,7 @@
                     <label for="linkUrl">URL</label>
                     <input type="url" id="linkUrl" required placeholder="https://example.com">
                 </div>
-                <button type="submit" class="btn btn-primary">Add link</button>
+                <button type="submit" class="btn btn-primary btn-full">Add link</button>
             </form>
         </div>
     </div>
@@ -592,41 +599,43 @@
             <button class="modal-close" onclick="closePricing()">&times;</button>
         </div>
         <div class="modal-body">
-            <p style="color:var(--gray-500);font-size:.875rem;margin-bottom:1.25rem;text-align:center">All plans include a 14-day free trial. Cancel anytime.</p>
+            <p style="color:var(--gray-400);font-size:.875rem;margin-bottom:1.25rem;text-align:center">All plans include a 14-day free trial. Cancel anytime.</p>
             <div class="plans-grid">
                 <div class="plan-card">
                     <div class="plan-name">Starter</div>
                     <div class="plan-price">$7<span>/mo</span></div>
+                    <div class="plan-trial">14-day free trial</div>
                     <ul class="plan-features">
                         <li>3 links monitored</li>
-                        <li>Checked every 4 hours</li>
+                        <li>Check every 4 hours</li>
                         <li>Email alerts</li>
                         <li>30-day history</li>
                     </ul>
-                    <a href="https://buy.stripe.com/dRmaEYbaB6Cxextdh8gfu00" class="btn btn-outline plan-cta">Start free trial</a>
+                    <a href="https://buy.stripe.com/dRmaEYbaB6Cxextdh8gfu00" class="btn btn-secondary plan-cta">Start Trial</a>
                 </div>
                 <div class="plan-card featured">
-                    <span class="plan-badge">Popular</span>
                     <div class="plan-name">Pro</div>
                     <div class="plan-price">$15<span>/mo</span></div>
+                    <div class="plan-trial">14-day free trial</div>
                     <ul class="plan-features">
                         <li>10 links monitored</li>
-                        <li>Checked every 2 hours</li>
+                        <li>Check every 2 hours</li>
                         <li>Email alerts</li>
                         <li>90-day history</li>
                     </ul>
-                    <a href="https://buy.stripe.com/14A5kE6Ul9OJahdgtkgfu01" class="btn btn-primary plan-cta">Start free trial</a>
+                    <a href="https://buy.stripe.com/14A5kE6Ul9OJahdgtkgfu01" class="btn btn-primary plan-cta">Start Trial</a>
                 </div>
                 <div class="plan-card">
                     <div class="plan-name">Agency</div>
                     <div class="plan-price">$29<span>/mo</span></div>
+                    <div class="plan-trial">14-day free trial</div>
                     <ul class="plan-features">
                         <li>50 links monitored</li>
-                        <li>Checked every hour</li>
+                        <li>Check every hour</li>
                         <li>Email alerts</li>
                         <li>1-year history</li>
                     </ul>
-                    <a href="https://buy.stripe.com/4gM00k5Qh7GB4WTfpggfu02" class="btn btn-outline plan-cta">Start free trial</a>
+                    <a href="https://buy.stripe.com/4gM00k5Qh7GB4WTfpggfu02" class="btn btn-secondary plan-cta">Start Trial</a>
                 </div>
             </div>
         </div>
@@ -636,7 +645,6 @@
 <script>
 let currentUser = null;
 
-/* ---------- Auth ---------- */
 function switchTab(tab) {
     document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
     document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
@@ -700,7 +708,6 @@ function handleLogout() {
         });
 }
 
-/* ---------- Dashboard init ---------- */
 async function enterDashboard() {
     try {
         const res = await fetch('/api/user/status');
@@ -713,7 +720,6 @@ async function enterDashboard() {
     document.getElementById('userEmail').textContent = currentUser.email;
     document.getElementById('planBadge').textContent = currentUser.plan;
 
-    // Trial banner
     const trialBanner = document.getElementById('trialBanner');
     const expiredBanner = document.getElementById('expiredBanner');
     trialBanner.classList.remove('show');
@@ -734,7 +740,6 @@ async function enterDashboard() {
     loadLinks();
 }
 
-/* ---------- Links ---------- */
 async function loadLinks() {
     const container = document.getElementById('linksContainer');
     container.innerHTML = '<div class="loading-state">Loading...</div>';
@@ -792,14 +797,13 @@ function createLinkCard(link) {
             <div class="link-checked">${checked}</div>
         </div>
         <div class="link-actions">
-            <button class="btn btn-outline btn-sm" onclick="viewHistory(${link.id}, '${esc(link.name || link.url)}')">History</button>
-            <button class="btn btn-outline btn-sm" onclick="checkLink(${link.id}, this)">Check</button>
-            <button class="btn btn-danger-outline btn-sm" onclick="deleteLink(${link.id})">Delete</button>
+            <button class="btn btn-secondary btn-sm" onclick="viewHistory(${link.id}, '${esc(link.name || link.url)}')">History</button>
+            <button class="btn btn-secondary btn-sm" onclick="checkLink(${link.id}, this)">Check</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteLink(${link.id})">Delete</button>
         </div>`;
     return card;
 }
 
-/* ---------- Link actions ---------- */
 function openAddModal() { document.getElementById('addLinkOverlay').classList.add('active'); }
 function closeAddModal() {
     document.getElementById('addLinkOverlay').classList.remove('active');
@@ -820,7 +824,6 @@ async function handleAddLink(e) {
         });
         if (res.ok) {
             closeAddModal();
-            // Refresh user status too (link count changed)
             const statusRes = await fetch('/api/user/status');
             if (statusRes.ok) currentUser = await statusRes.json();
             loadLinks();
@@ -849,7 +852,6 @@ async function deleteLink(id) {
     } catch { alert('Error deleting link'); }
 }
 
-/* ---------- History ---------- */
 async function viewHistory(id, name) {
     document.getElementById('historyTitle').textContent = `History: ${name}`;
     document.getElementById('historyBody').innerHTML = '<p class="loading-state">Loading...</p>';
@@ -890,11 +892,9 @@ async function viewHistory(id, name) {
 }
 function closeHistory() { document.getElementById('historyOverlay').classList.remove('active'); }
 
-/* ---------- Pricing ---------- */
 function showPricing() { document.getElementById('pricingOverlay').classList.add('active'); }
 function closePricing() { document.getElementById('pricingOverlay').classList.remove('active'); }
 
-/* ---------- Helpers ---------- */
 function esc(s) {
     const d = document.createElement('div');
     d.textContent = s;
@@ -909,12 +909,10 @@ function timeAgo(date) {
     return Math.floor(s / 86400) + 'd ago';
 }
 
-// Close modals on backdrop click
 document.querySelectorAll('.modal-overlay').forEach(el => {
     el.addEventListener('click', e => { if (e.target === el) el.classList.remove('active'); });
 });
 
-// Auto-login check on page load
 window.addEventListener('load', () => enterDashboard());
 </script>
 </body>
