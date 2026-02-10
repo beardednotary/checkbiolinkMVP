@@ -781,28 +781,34 @@ function createLinkCard(link) {
     card.className = 'link-card';
 
     const status = link.status || 'unknown';
-    const statusLabel = status === 'up' ? 'Up' : status === 'down' ? 'Down' : 'Pending';
+    const statusLabel = status === 'up' ? 'Online' : status === 'down' ? 'Offline' : 'Pending';
     const checked = link.last_checked
-        ? 'Checked ' + timeAgo(new Date(link.last_checked))
-        : 'Not checked yet';
+        ? timeAgo(new Date(link.last_checked))
+        : 'Never';
 
     card.innerHTML = `
         <div class="status-dot ${status}"></div>
         <div class="link-info">
             <div class="link-name">${esc(link.name || 'Unnamed')}</div>
             <div class="link-url">${esc(link.url)}</div>
+            <div class="link-checked">Last checked ${checked}</div>
         </div>
         <div class="link-meta">
             <div class="link-status-label ${status}">${statusLabel}</div>
-            <div class="link-checked">${checked}</div>
         </div>
         <div class="link-actions">
             <button class="btn btn-secondary btn-sm" onclick="viewHistory(${link.id}, '${esc(link.name || link.url)}')">History</button>
-            <button class="btn btn-secondary btn-sm" onclick="checkLink(${link.id}, this)">Check</button>
+            <button class="btn btn-secondary btn-sm" onclick="checkLink(${link.id}, this)">Check Now</button>
             <button class="btn btn-danger btn-sm" onclick="deleteLink(${link.id})">Delete</button>
         </div>`;
     return card;
 }
+
+// CHANGES MADE:
+// 1. "Last checked" now shows directly under the URL in the link-info section
+// 2. Changed "Up/Down" to "Online/Offline" (more user-friendly)
+// 3. Changed "Check" button to "Check Now" (clearer action)
+// 4. Moved "last checked" from the right meta column to under the URL for better visibility
 
 function openAddModal() { document.getElementById('addLinkOverlay').classList.add('active'); }
 function closeAddModal() {

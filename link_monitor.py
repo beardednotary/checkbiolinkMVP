@@ -164,21 +164,51 @@ def send_alert(link, check_result):
             print(f"Error sending alert: {str(e)}")
 
 
+# Replace the check_all_links() function in link_monitor.py with this:
+
 def check_all_links():
     """
-    Check all active links for all active users
+    Check links based on their user's plan frequency
     """
     from app import app
+    from datetime import timedelta
     
     with app.app_context():
         links = Link.query.filter_by(active=True).all()
-        print(f"Checking {len(links)} links...")
+        print(f"Found {len(links)} active links to check...")
+        
+        checked_count = 0
         
         for link in links:
             try:
-                check_link(link.id)
-                time.sleep(1)  # Small delay between checks
+                user = link.user
+                
+                # Determine check frequency based on plan
+                if user.plan == 'starter':
+                    check_interval = timedelta(hours=4)
+                elif user.plan == 'pro':
+                    check_interval = timedelta(hours=2)
+                elif user.plan == 'business':
+                    check_interval = timedelta(hours=1)
+                else:
+                    check_interval = timedelta(hours=4)  # Default
+                
+                # Check if enough time has passed since last check
+                if link.last_checked is None:
+                    # Never checked, check it now
+                    should_check = True
+                else:
+                    time_since_check = datetime.utcnow() - link.last_checked
+                    should_check = time_since_check >= check_interval
+                
+                if should_check:
+                    check_link(link.id)
+                    checked_count += 1
+                    time.sleep(1)  # Small delay between checks
+                else:
+                    print(f"Skipping link {link.id} - checked {time_since_check.total_seconds()/3600:.1f}h ago (plan: {user.plan})")
+                    
             except Exception as e:
                 print(f"Error checking link {link.id}: {str(e)}")
         
-        print(f"Completed checking {len(links)} links")
+        print(f"Completed checking {checked_count}/{len(links)} links")
