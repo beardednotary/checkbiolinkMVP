@@ -320,6 +320,27 @@ def stripe_webhook():
     
     return jsonify({'status': 'success'}), 200
 
+@app.route('/api/check-link-now', methods=['POST'])
+def check_link_now():
+    """Free instant link checker - no auth required"""
+    data = request.get_json()
+    url = data.get('url')
+    
+    if not url:
+        return jsonify({'error': 'URL required'}), 400
+    
+    # Use your existing check_url function
+    from link_monitor import check_url
+    result = check_url(url)
+    
+    return jsonify({
+        'url': url,
+        'is_up': result['is_up'],
+        'status_code': result['status_code'],
+        'response_time': result['response_time'],
+        'error_message': result['error_message']
+    })
+
 
 def handle_checkout_completed(session):
     """Handle successful checkout - activate user subscription"""
