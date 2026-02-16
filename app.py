@@ -10,6 +10,11 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 import stripe
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app, origins=['https://checkbiolink.com', 'https://app.checkbiolink.com'])
+app.config.from_object(Config)
 
 # Load environment variables from .env file
 load_dotenv()
