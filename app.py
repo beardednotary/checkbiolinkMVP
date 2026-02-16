@@ -12,15 +12,16 @@ import os
 import stripe
 from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app, origins=['https://checkbiolink.com', 'https://app.checkbiolink.com'])
-app.config.from_object(Config)
+from flask_cors import CORS
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
+CORS(app, origins=['https://checkbiolink.com', 'https://app.checkbiolink.com'])
+
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
