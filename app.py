@@ -23,8 +23,8 @@ stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 @app.before_request
 def csrf_check():
     if request.method in ('POST', 'PUT', 'DELETE'):
-        # Exempt webhook and cron endpoints (they use their own auth)
-        exempt = ('/webhook/stripe', '/api/check-all')
+        # Exempt webhook, cron, and free checker endpoints
+        exempt = ('/webhook/stripe', '/api/check-all', '/api/check-link-now')
         if request.path in exempt:
             return
         # Require JSON content type on mutating requests
