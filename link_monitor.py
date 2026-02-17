@@ -41,14 +41,14 @@ def check_url(url, timeout=10):
             'is_up': False,
             'status_code': None,
             'response_time': time.time() - start_time,
-            'error_message': 'Request timeout'
+            'error_message': 'Connection Timeout'
         }
     except requests.exceptions.ConnectionError:
         return {
             'is_up': False,
             'status_code': None,
             'response_time': time.time() - start_time,
-            'error_message': 'Connection error'
+            'error_message': 'Connection Error'
         }
     except requests.exceptions.RequestException as e:
         return {
@@ -106,6 +106,39 @@ def check_link(link_id):
     return result
 
 
+def get_error_detail(error_message):
+    """
+    Return a human-readable detail line for known error types
+    """
+    if not error_message:
+        return 'An unknown error occurred'
+    
+    error_map = {
+        'Connection Timeout': 'Server failed to respond within 10 seconds',
+        'Connection Error': 'Unable to establish a connection to the server',
+        'Request timeout': 'Server failed to respond within 10 seconds',
+        'Connection error': 'Unable to establish a connection to the server',
+    }
+    
+    for key, detail in error_map.items():
+        if key.lower() in error_message.lower():
+            return detail
+    
+    # For HTTP errors
+    if error_message.startswith('HTTP '):
+        code = error_message.replace('HTTP ', '')
+        http_map = {
+            '404': 'Page not found - the URL may have changed or been deleted',
+            '500': 'Server error - the server encountered an internal problem',
+            '503': 'Service unavailable - the server is temporarily down',
+            '502': 'Bad gateway - the server received an invalid response',
+            '403': 'Forbidden - access to this URL is not allowed',
+        }
+        return http_map.get(code, f'Server returned an error response ({error_message})')
+    
+    return error_message
+
+
 def send_alert(link, check_result):
     """
     Send email alert when a link goes down
@@ -114,41 +147,82 @@ def send_alert(link, check_result):
     import requests as req
     
     user = link.user
-    
+    link_name = link.name or link.url
+    error_type = check_result['error_message'] or 'Unknown Error'
+    error_detail = get_error_detail(check_result['error_message'])
+    detected_at = datetime.utcnow().strftime('%b %d, %Y at %I:%M %p UTC')
+    dashboard_url = 'https://app.checkbiolink.com'
+
+    html_body = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body style="margin:0; padding:20px; background:#f5f5f5; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+
+  <div style="max-width:600px; margin:0 auto; background:white; border:1px solid #e0e0e0; border-radius:8px; overflow:hidden;">
+
+    <!-- Header -->
+    <div style="padding:20px 24px; background:#fff; border-bottom:3px solid #ef4444;">
+      <div style="font-size:18px; font-weight:700; color:#1a1a1a;">CheckBioLink</div>
+      <div style="display:inline-block; background:#ef4444; color:white; padding:4px 12px; border-radius:4px; font-size:13px; font-weight:600; margin-top:8px;">&#9888; Link Down</div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:32px 24px;">
+
+      <div style="font-size:16px; color:#2a2a2a; line-height:1.6; margin-bottom:24px;">
+        One of your monitored links is currently down. Your visitors may be getting an error instead of your content.
+      </div>
+
+      <!-- Affected Link -->
+      <div style="background:#fef2f2; border-left:4px solid #ef4444; padding:16px; margin:24px 0; border-radius:4px;">
+        <div style="font-size:12px; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Affected Link</div>
+        <div style="font-size:15px; font-weight:600; color:#1a1a1a; margin-bottom:4px;">{link_name}</div>
+        <div style="font-size:14px; color:#6b7280; word-break:break-all;">{link.url}</div>
+      </div>
+
+      <!-- Error Type -->
+      <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; padding:16px; margin:20px 0;">
+        <div style="font-size:13px; color:#6b7280; margin-bottom:8px;">Error Type</div>
+        <div style="font-size:14px; color:#1f2937; font-family:'Courier New', monospace; background:white; padding:8px 12px; border-radius:4px; border:1px solid #e5e7eb;">{error_type}</div>
+      </div>
+
+      <!-- Error Detail -->
+      <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; padding:16px; margin:20px 0;">
+        <div style="font-size:13px; color:#6b7280; margin-bottom:8px;">Details</div>
+        <div style="font-size:14px; color:#1f2937; font-family:'Courier New', monospace; background:white; padding:8px 12px; border-radius:4px; border:1px solid #e5e7eb;">{error_detail}</div>
+      </div>
+
+      <!-- CTA -->
+      <a href="{dashboard_url}" style="display:inline-block; background:#3b82f6; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:500; margin-top:24px; font-size:14px;">View Dashboard &#8594;</a>
+
+      <!-- Timestamp -->
+      <div style="font-size:13px; color:#9ca3af; margin-top:20px; padding-top:20px; border-top:1px solid #f3f4f6;">
+        Detected: {detected_at}
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:20px 24px; background:#fafafa; border-top:1px solid #e5e7eb; font-size:13px; color:#6b7280; text-align:center;">
+      CheckBioLink &middot; Monitoring your links 24/7
+    </div>
+
+  </div>
+
+</body>
+</html>"""
+
     with app.app_context():
-        subject = f"⚠️ Alert: Your Link Is Down - {link.name or link.url}"
-        
-        html_body = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #f5576c;">⚠️ CheckBioLink Alert</h2>
-                <p>We've detected that your link is currently <strong>DOWN</strong>.</p>
-                
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                    <p><strong>Link:</strong> {link.name or 'Unnamed Link'}</p>
-                    <p><strong>URL:</strong> <a href="{link.url}">{link.url}</a></p>
-                    <p><strong>Status:</strong> {check_result['error_message']}</p>
-                    <p><strong>Time Detected:</strong> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
-                </div>
-                
-                <p>Please check your link and fix any issues to avoid losing traffic and potential customers.</p>
-                
-                <p style="margin-top: 30px; color: #666; font-size: 14px;">
-                    - The CheckBioLink Team<br>
-                    <a href="https://checkbiolink.com">checkbiolink.com</a>
-                </p>
-            </div>
-        </body>
-        </html>
-        """
-        
+        subject = f"Link Down: {link_name}"
+
         try:
             response = req.post(
                 f"https://api.mailgun.net/v3/{app.config['MAILGUN_DOMAIN']}/messages",
                 auth=("api", app.config['MAILGUN_API_KEY']),
                 data={
-                    "from": f"CheckBioLink Alerts <alerts@{app.config['MAILGUN_DOMAIN']}>",
+                    "from": f"CheckBioLink <alerts@{app.config['MAILGUN_DOMAIN']}>",
                     "to": user.email,
                     "subject": subject,
                     "html": html_body
@@ -163,8 +237,6 @@ def send_alert(link, check_result):
         except Exception as e:
             print(f"Error sending alert: {str(e)}")
 
-
-# Replace the check_all_links() function in link_monitor.py with this:
 
 def check_all_links():
     """
@@ -195,7 +267,6 @@ def check_all_links():
                 
                 # Check if enough time has passed since last check
                 if link.last_checked is None:
-                    # Never checked, check it now
                     should_check = True
                 else:
                     time_since_check = datetime.utcnow() - link.last_checked
